@@ -17,4 +17,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleAccountNotFound(AccountNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+
+    @ExceptionHandler(OperationTypeNotFoundException.class)
+    public ProblemDetail handleOperationTypeNotFound(OperationTypeNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 }
