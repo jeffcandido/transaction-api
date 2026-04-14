@@ -15,6 +15,10 @@ spring:
     locations: classpath:db/migration
   mvc:
     problem-details.enabled: true
+  jackson:
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
 
 management:
   endpoints:
