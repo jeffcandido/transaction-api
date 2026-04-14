@@ -2,12 +2,15 @@ package com.org.transaction.account.application.service;
 
 import com.org.transaction.account.application.port.out.AccountRepositoryPort;
 import com.org.transaction.account.domain.Account;
+import com.org.transaction.shared.exception.AccountNotFoundException;
 import com.org.transaction.shared.exception.DuplicateDocumentException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,5 +51,27 @@ class AccountServiceTest {
                 .hasMessageContaining(documentNumber);
 
         verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldFindAccountSuccessfully() {
+        Long accountId = 1L;
+        Account account = new Account(accountId, "12345678900");
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        Account result = accountService.findAccount(accountId);
+
+        assertThat(result.getAccountId()).isEqualTo(accountId);
+        assertThat(result.getDocumentNumber()).isEqualTo("12345678900");
+    }
+
+    @Test
+    void shouldThrowAccountNotFoundExceptionWhenAccountDoesNotExist() {
+        Long accountId = 99L;
+        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> accountService.findAccount(accountId))
+                .isInstanceOf(AccountNotFoundException.class)
+                .hasMessageContaining(String.valueOf(accountId));
     }
 }

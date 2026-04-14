@@ -12,4 +12,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleDuplicateDocument(DuplicateDocumentException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ProblemDetail handleAccountNotFound(AccountNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 }
