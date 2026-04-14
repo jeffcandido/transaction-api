@@ -24,6 +24,8 @@ class AccountControllerIntegrationTest extends AbstractIntegrationTest {
         jdbcTemplate.execute("DELETE FROM accounts");
     }
 
+    // POST /v1/accounts
+
     @Test
     void shouldCreateAccountAndReturn201() {
         var result = mvc.post().uri("/v1/accounts")
@@ -34,10 +36,8 @@ class AccountControllerIntegrationTest extends AbstractIntegrationTest {
                 .exchange();
 
         assertThat(result).hasStatus(HttpStatus.CREATED);
-        assertThat(result).bodyJson()
-                .extractingPath("$.document_number").isEqualTo("12345678900");
-        assertThat(result).bodyJson()
-                .extractingPath("$.account_id").isNotNull();
+        assertThat(result).bodyJson().extractingPath("$.document_number").isEqualTo("12345678900");
+        assertThat(result).bodyJson().extractingPath("$.account_id").isNotNull();
     }
 
     @Test
@@ -68,5 +68,34 @@ class AccountControllerIntegrationTest extends AbstractIntegrationTest {
                 .exchange();
 
         assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    // GET /v1/accounts/{accountId}
+
+    @Test
+    void shouldGetAccountAndReturn200() {
+        mvc.post().uri("/v1/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"document_number":"12345678900"}
+                        """)
+                .exchange();
+        Long accountId = jdbcTemplate.queryForObject(
+                "SELECT account_id FROM accounts WHERE document_number = '12345678900'",
+                Long.class
+        );
+
+        var result = mvc.get().uri("/v1/accounts/{id}", accountId).exchange();
+
+        assertThat(result).hasStatus(HttpStatus.OK);
+        assertThat(result).bodyJson().extractingPath("$.account_id").isNotNull();
+        assertThat(result).bodyJson().extractingPath("$.document_number").isEqualTo("12345678900");
+    }
+
+    @Test
+    void shouldReturn404WhenAccountDoesNotExist() {
+        var result = mvc.get().uri("/v1/accounts/{id}", 999).exchange();
+
+        assertThat(result).hasStatus(HttpStatus.NOT_FOUND);
     }
 }
