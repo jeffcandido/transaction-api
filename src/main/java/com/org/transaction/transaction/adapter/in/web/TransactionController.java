@@ -2,6 +2,7 @@ package com.org.transaction.transaction.adapter.in.web;
 
 import com.org.transaction.transaction.application.port.in.CreateTransactionUseCase;
 import com.org.transaction.transaction.domain.Transaction;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/transactions")
+@Tag(name = "Transactions", description = "Transaction management")
 class TransactionController {
 
     private final CreateTransactionUseCase createTransactionUseCase;
