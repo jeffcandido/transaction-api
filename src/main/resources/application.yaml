@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: transaction-api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /
+      path-mapping:
+        health: healthz
+
+springdoc:
+  show-actuator: true
