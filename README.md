@@ -14,7 +14,7 @@ Basic management of the financial lifecycle for cardholders, allowing for accoun
 |---------|---------|
 | `local` | Local development — connects to the PostgreSQL instance started by `docker-compose` |
 | `test`  | Automated tests — used automatically by the test suite via Testcontainers (no manual setup needed) |
-| _(none)_ | Production — expects datasource configuration via environment variables (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`) |
+| _(none)_ | Production — expects datasource configuration via environment variables (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`) |
 
 ## Running locally
 
