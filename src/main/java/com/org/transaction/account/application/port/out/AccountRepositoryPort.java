@@ -8,6 +8,8 @@ public interface AccountRepositoryPort {
 
     Account save(Account account);
 
+    Account update(Account account);
+
     boolean existsByDocumentNumber(String documentNumber);
 
     Optional<Account> findById(Long accountId);

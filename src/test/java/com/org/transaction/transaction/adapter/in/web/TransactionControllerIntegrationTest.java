@@ -26,7 +26,7 @@ class TransactionControllerIntegrationTest extends AbstractIntegrationTest {
         jdbcTemplate.execute("DELETE FROM transactions");
         jdbcTemplate.execute("DELETE FROM accounts");
 
-        jdbcTemplate.update("INSERT INTO accounts (document_number) VALUES ('12345678900')");
+        jdbcTemplate.update("INSERT INTO accounts (document_number, available_credit_limit) VALUES ('12345678900', 500.00)");
         accountId = jdbcTemplate.queryForObject(
                 "SELECT account_id FROM accounts WHERE document_number = '12345678900'",
                 Long.class
@@ -101,6 +101,22 @@ class TransactionControllerIntegrationTest extends AbstractIntegrationTest {
                 .exchange();
 
         assertThat(result).hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldReturn422WhenDebitExceedsCreditLimit() {
+        var result = mvc.post().uri("/v1/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "account_id": %d,
+                          "operation_type_id": 1,
+                          "amount": 600.00
+                        }
+                        """.formatted(accountId))
+                .exchange();
+
+        assertThat(result).hasStatus(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @Test
