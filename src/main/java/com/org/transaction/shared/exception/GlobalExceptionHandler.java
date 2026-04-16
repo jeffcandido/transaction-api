@@ -22,4 +22,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleOperationTypeNotFound(OperationTypeNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+
+    @ExceptionHandler(InsufficientCreditLimitException.class)
+    public ProblemDetail handleInsufficientCreditLimit(InsufficientCreditLimitException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    }
 }

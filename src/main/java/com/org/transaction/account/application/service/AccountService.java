@@ -9,6 +9,8 @@ import com.org.transaction.shared.exception.DuplicateDocumentException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+
 @Service
 @Transactional
 public class AccountService implements CreateAccountUseCase, FindAccountUseCase {
@@ -24,7 +26,7 @@ public class AccountService implements CreateAccountUseCase, FindAccountUseCase 
         if (accountRepository.existsByDocumentNumber(documentNumber)) {
             throw new DuplicateDocumentException(documentNumber);
         }
-        return accountRepository.save(new Account(null, documentNumber));
+        return accountRepository.save(new Account(null, documentNumber, BigDecimal.ZERO));
     }
 
     @Override

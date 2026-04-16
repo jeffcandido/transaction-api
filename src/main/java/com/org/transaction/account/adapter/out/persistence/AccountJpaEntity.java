@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "accounts")
 class AccountJpaEntity {
@@ -19,11 +21,21 @@ class AccountJpaEntity {
     @Column(name = "document_number", nullable = false, unique = true)
     private String documentNumber;
 
-    AccountJpaEntity() {
+    @Column(name = "available_credit_limit", nullable = false)
+    private BigDecimal availableCreditLimit;
+
+    protected AccountJpaEntity() {
     }
 
-    AccountJpaEntity(String documentNumber) {
+    AccountJpaEntity(String documentNumber, BigDecimal availableCreditLimit) {
         this.documentNumber = documentNumber;
+        this.availableCreditLimit = availableCreditLimit;
+    }
+
+    AccountJpaEntity(Long id, String documentNumber, BigDecimal availableCreditLimit) {
+        this.id = id;
+        this.documentNumber = documentNumber;
+        this.availableCreditLimit = availableCreditLimit;
     }
 
     Long getId() {
@@ -32,5 +44,9 @@ class AccountJpaEntity {
 
     String getDocumentNumber() {
         return documentNumber;
+    }
+
+    BigDecimal getAvailableCreditLimit() {
+        return availableCreditLimit;
     }
 }

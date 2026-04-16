@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +33,7 @@ class AccountServiceTest {
     void shouldCreateAccountSuccessfully() {
         String documentNumber = "12345678900";
         when(accountRepository.existsByDocumentNumber(documentNumber)).thenReturn(false);
-        when(accountRepository.save(any())).thenReturn(new Account(1L, documentNumber));
+        when(accountRepository.save(any())).thenReturn(new Account(1L, documentNumber, BigDecimal.ZERO));
 
         Account result = accountService.createAccount(documentNumber);
 
@@ -56,7 +57,7 @@ class AccountServiceTest {
     @Test
     void shouldFindAccountSuccessfully() {
         Long accountId = 1L;
-        Account account = new Account(accountId, "12345678900");
+        Account account = new Account(accountId, "12345678900", BigDecimal.ZERO);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
         Account result = accountService.findAccount(accountId);

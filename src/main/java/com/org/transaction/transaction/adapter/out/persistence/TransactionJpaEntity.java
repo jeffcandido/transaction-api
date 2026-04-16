@@ -31,7 +31,7 @@ class TransactionJpaEntity {
     @Column(name = "event_date", nullable = false)
     private Instant eventDate;
 
-    TransactionJpaEntity() {
+    protected TransactionJpaEntity() {
     }
 
     TransactionJpaEntity(Long accountId, Long operationTypeId, BigDecimal amount, Instant eventDate) {

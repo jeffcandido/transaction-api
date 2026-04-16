@@ -3,6 +3,7 @@ package com.org.transaction.transaction.application.service;
 import com.org.transaction.account.application.port.out.AccountRepositoryPort;
 import com.org.transaction.account.domain.Account;
 import com.org.transaction.shared.exception.AccountNotFoundException;
+import com.org.transaction.shared.exception.InsufficientCreditLimitException;
 import com.org.transaction.shared.exception.OperationTypeNotFoundException;
 import com.org.transaction.transaction.application.port.out.OperationTypeRepositoryPort;
 import com.org.transaction.transaction.application.port.out.TransactionRepositoryPort;
@@ -44,7 +45,7 @@ class TransactionServiceTest {
         Long operationTypeId = 1L;
         BigDecimal amount = new BigDecimal("100.00");
 
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900")));
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900", new BigDecimal("500.00"))));
         when(operationTypeRepository.findById(operationTypeId)).thenReturn(Optional.of(new OperationType(operationTypeId, "COMPRA A VISTA")));
         when(transactionRepository.save(any())).thenAnswer(inv -> {
             Transaction t = inv.getArgument(0);
@@ -62,7 +63,7 @@ class TransactionServiceTest {
         Long operationTypeId = 4L;
         BigDecimal amount = new BigDecimal("200.00");
 
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900")));
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900", BigDecimal.ZERO)));
         when(operationTypeRepository.findById(operationTypeId)).thenReturn(Optional.of(new OperationType(operationTypeId, "PAGAMENTO")));
         when(transactionRepository.save(any())).thenAnswer(inv -> {
             Transaction t = inv.getArgument(0);
@@ -72,6 +73,20 @@ class TransactionServiceTest {
         Transaction result = transactionService.createTransaction(accountId, operationTypeId, amount);
 
         assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("200.00"));
+    }
+
+    @Test
+    void shouldThrowInsufficientCreditLimitExceptionWhenDebitExceedsLimit() {
+        Long accountId = 1L;
+        Long operationTypeId = 1L;
+        BigDecimal amount = new BigDecimal("100.00");
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900", new BigDecimal("50.00"))));
+        when(operationTypeRepository.findById(operationTypeId)).thenReturn(Optional.of(new OperationType(operationTypeId, "COMPRA A VISTA")));
+
+        assertThatThrownBy(() -> transactionService.createTransaction(accountId, operationTypeId, amount))
+                .isInstanceOf(InsufficientCreditLimitException.class)
+                .hasMessageContaining(String.valueOf(accountId));
     }
 
     @Test
@@ -89,7 +104,7 @@ class TransactionServiceTest {
         Long accountId = 1L;
         Long operationTypeId = 99L;
 
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900")));
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900", BigDecimal.ZERO)));
         when(operationTypeRepository.findById(operationTypeId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> transactionService.createTransaction(accountId, operationTypeId, new BigDecimal("50.00")))
@@ -103,7 +118,7 @@ class TransactionServiceTest {
         Long operationTypeId = 3L;
         BigDecimal amount = new BigDecimal("75.50");
 
-        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900")));
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(new Account(accountId, "12345678900", new BigDecimal("500.00"))));
         when(operationTypeRepository.findById(operationTypeId)).thenReturn(Optional.of(new OperationType(operationTypeId, "SAQUE")));
         when(transactionRepository.save(any())).thenAnswer(inv -> {
             Transaction t = inv.getArgument(0);

@@ -17,7 +17,14 @@ class AccountPersistenceAdapter implements AccountRepositoryPort {
 
     @Override
     public Account save(Account account) {
-        AccountJpaEntity entity = new AccountJpaEntity(account.getDocumentNumber());
+        AccountJpaEntity entity = new AccountJpaEntity(account.getDocumentNumber(), account.getAvailableCreditLimit());
+        AccountJpaEntity saved = jpaRepository.save(entity);
+        return toDomain(saved);
+    }
+
+    @Override
+    public Account update(Account account) {
+        AccountJpaEntity entity = new AccountJpaEntity(account.getAccountId(), account.getDocumentNumber(), account.getAvailableCreditLimit());
         AccountJpaEntity saved = jpaRepository.save(entity);
         return toDomain(saved);
     }
@@ -33,6 +40,6 @@ class AccountPersistenceAdapter implements AccountRepositoryPort {
     }
 
     private Account toDomain(AccountJpaEntity entity) {
-        return new Account(entity.getId(), entity.getDocumentNumber());
+        return new Account(entity.getId(), entity.getDocumentNumber(), entity.getAvailableCreditLimit());
     }
 }

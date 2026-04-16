@@ -1,7 +1,9 @@
 package com.org.transaction.transaction.application.service;
 
 import com.org.transaction.account.application.port.out.AccountRepositoryPort;
+import com.org.transaction.account.domain.Account;
 import com.org.transaction.shared.exception.AccountNotFoundException;
+import com.org.transaction.shared.exception.InsufficientCreditLimitException;
 import com.org.transaction.shared.exception.OperationTypeNotFoundException;
 import com.org.transaction.transaction.application.port.in.CreateTransactionUseCase;
 import com.org.transaction.transaction.application.port.out.OperationTypeRepositoryPort;
@@ -34,7 +36,7 @@ public class TransactionService implements CreateTransactionUseCase {
 
     @Override
     public Transaction createTransaction(Long accountId, Long operationTypeId, BigDecimal amount) {
-        accountRepository.findById(accountId)
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         operationTypeRepository.findById(operationTypeId)
@@ -43,6 +45,14 @@ public class TransactionService implements CreateTransactionUseCase {
         BigDecimal signedAmount = DEBIT_OPERATION_TYPES.contains(operationTypeId)
                 ? amount.abs().negate()
                 : amount.abs();
+
+        BigDecimal newAvailableCreditLimit = account.getAvailableCreditLimit().add(signedAmount);
+
+        if (newAvailableCreditLimit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientCreditLimitException(accountId);
+        }
+
+        accountRepository.update(new Account(account.getAccountId(), account.getDocumentNumber(), newAvailableCreditLimit));
 
         Transaction transaction = new Transaction(null, accountId, operationTypeId, signedAmount, Instant.now());
         return transactionRepository.save(transaction);

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.org.transaction.account.domain.Account;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 @Schema(description = "Account details")
 record AccountResponse(
 
@@ -13,10 +15,14 @@ record AccountResponse(
 
         @Schema(description = "Cardholder's document number (CPF)", example = "12345678900")
         @JsonProperty("document_number")
-        String documentNumber
+        String documentNumber,
+
+        @Schema(description = "Cardholder's credit limit", example = "10.0")
+        @JsonProperty("available_credit_limit")
+        BigDecimal availableCreditLimit
 ) {
 
     static AccountResponse from(Account account) {
-        return new AccountResponse(account.getAccountId(), account.getDocumentNumber());
+        return new AccountResponse(account.getAccountId(), account.getDocumentNumber(), account.getAvailableCreditLimit());
     }
 }
